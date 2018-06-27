@@ -1,0 +1,47 @@
+{% load static %}
+<nav class="navbar navbar-expand-md bg-dark navbar-dark text-left">
+    <div class="container-fluid  col-12 col-sm-12 col-md-9 col-lg-9">
+        <a class="navbar-brand" href="{% url 'app:index' %}"><i class="fas fa-bug"></i>&nbsp;随便说</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="collapsibleNavbar">
+            <ul class="navbar-nav mr-auto">
+                {% for n in nav %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'app:index' %}?ptype={{ n.id }}">{{ n.nname }}</a>
+                    </li>
+                {% empty %}
+
+                {% endfor %}
+
+            </ul>
+            <ul class="navbar-nav mr-5">
+                {% if session.gname %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
+                            <img class="headphoto" src="{% static session.headphoto %}"/>{{ session.gname }}
+                        </a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="{% url 'app:mypublish' 1 %}"><i class="fas fa-sticky-note"></i>&nbsp;我的帖子</a>
+                            <a class="dropdown-item" href="{% url 'app:publishpage' %}"><i class="fas fa-paper-plane"></i>&nbsp;我要发帖</a>
+                            <a class="dropdown-item" href="{% url 'app:myinfo' %}"><i class="fas fa-address-card"></i>&nbsp;个人信息</a>
+                            <a class="dropdown-item" href="{% url 'app:logout' %}"><i class="fas fa-power-off"></i>&nbsp;退出</a>
+                        </div>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'app:register' %}"><i class="fas fa-user-plus"></i>&nbsp;注册</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'app:login' %}"><i class="fas fa-sign-in-alt"></i>&nbsp; 登录</a>
+                    </li>
+                {% endif %}
+            </ul>
+            <form class="form-inline" method="get" action="{% url 'app:search' 1 %}">
+                <input class="form-control mr-sm-2" required name="psearch" type="search" placeholder="Search" aria-label="Search">
+                <button class="btn btn-outline-success my-2 my-sm-0 text-center" type="submit"><i class="fas fa-search"></i></button>
+            </form>
+        </div>
+    </div>
+</nav>

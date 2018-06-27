@@ -1,0 +1,90 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.css' %}">
+    <link rel="stylesheet" href="{% static 'font-awesome/css/fontawesome-all.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/common.css' %}">
+
+</head>
+<body>
+{% include 'app/common/header.html' %}
+
+<div class="main container col-12 col-sm-12 col-md-9 col-lg-9">
+    <div class="row">
+        <div class="main-content col-12 col-sm-12 col-md-8 col-lg-8"
+             style="min-height: 300px;border: solid 1px #ededed;box-shadow: 2px 2px 2px #ededed;">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item" aria-current="page"><i class="fas fa-home"></i>&nbsp;<a
+                            href="{% url 'app:index' %}">首页</a></li>
+                    {% block  topnav-extend %}
+
+                    {% endblock %}
+                </ol>
+            </nav>
+            {% block main %}
+
+            {% endblock %}
+        </div>
+
+        <div class="col-12 col-sm-12 col-md-4 col-lg-4" style="min-height: 300px;">
+            {% block aside %}
+                <div class="card annoucement" style="width: 100%;">
+                    <div class="card-header">
+                        <i class="fas fa-bullhorn"></i>&nbsp;最新公告
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        {% for a in annoucement %}
+                            <li class="list-group-item"><span>[{{ a.aaddtime }}]</span><a
+                                    href="{% url 'app:announce' a.id %}">{{ a.atitle }}</a></li>
+                        {% endfor %}
+
+                    </ul>
+                </div>
+                <div class="card annoucement" style="width: 100%;margin-top: 20px;">
+                    <div class="card-header">
+                        <i class="fas fa-fire"></i>&nbsp;热评帖子
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        {% for h in hotpub %}
+                            <li class="list-group-item">
+                                <span class="text-muted">
+                                     {{ forloop.counter }}
+                                </span>
+                                <a href="{% url 'app:detail' h.id %}">
+                                    <span class="text-muted">
+                                        <i class="fas fa-user"></i>&nbsp;&nbsp;{{ h.pguest.gname }}：
+                                    </span>{{ h.ptitle }}
+
+                                </a>
+                                <span class="badge badge-danger text-light" style="float:right;font-size: 13px;">
+                                    {{ h.art_comments.all.count }}
+                                </span>
+                            </li>
+                        {% endfor %}
+
+                    </ul>
+                </div>
+
+            {% endblock %}
+        </div>
+    </div>
+</div>
+
+{% include 'app/common/footer.html' %}
+</body>
+<script src="{% static '/js/jquery.min.js' %}"></script>
+<script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+<script src="{% static '/js/common.js' %}"></script>
+
+{% block js %}
+
+{% endblock %}
+</html>

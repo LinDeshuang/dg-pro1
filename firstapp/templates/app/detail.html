@@ -1,0 +1,199 @@
+{% extends 'app/base.html' %}
+{% load static %}
+{% block  topnav-extend %}
+    <li class="breadcrumb-item active" aria-current="page">详情</li>
+{% endblock %}
+
+{% block main %}
+    {% if publish %}
+        <div class="card col-12 detail-card">
+            <div class="card-body">
+                <h5 class="card-title">{{ publish.ptitle }}</h5>
+                <h6 class="card-subtitle mb-2 text-muted text-center">
+                    <span class="badge badge-primary">{{ publish.ptype.nname }}</span>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-muted">
+                            <i class="fas fa-user"></i>&nbsp;{{ publish.pguest.gname }}
+                        </span>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-muted">
+                            <i class="fas fa-clock"></i>&nbsp;{{ publish.paddtime }}
+                        </span>
+                    <span class="text-muted">
+                            <i class="fas fa-eye"></i>&nbsp;{{ publish.pclick }}
+                        </span>
+                </h6>
+                <p class="card-text">
+                    {{ publish.pcontent|safe }}
+                </p>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-warning" role="alert">
+            这篇文章已经被删除了。。。请查看其他文章
+        </div>
+    {% endif %}
+    <p class="col-10" style="margin: 30px auto;">
+        <a class="btn btn-primary col-12" data-toggle="collapse" href="#comF" role="button" aria-expanded="false"
+           aria-controls="collapseExample">
+            我要评论
+        </a>
+    </p>
+    <div class="collapse" id="comF">
+        <div class="card card-body">
+            <form class="text-center" id="comForm" method="post" action="{% url 'app:comment' %}">
+                {% csrf_token %}
+                <input type="hidden" name="cbelong" value="{{ publish.id }}">
+                <div class="form-group">
+                    <textarea name="ccontent" id="ccontent"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i>&nbsp;&nbsp;发表</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card col-12 comment-card">
+        <div class="card-header">
+            <i class="fas fa-comment"></i>&nbsp;&nbsp;看看大家怎么说
+        </div>
+        <ul class="list-group list-group-flush">
+            {% if not comment %}
+                <p class="alert alert-info"><i class="fas fa-ship"></i>沙发已备，快来抢吧～～</p>
+            {% endif %}
+            {% for com in comment %}
+                <li class="list-group-item">
+                    <div class="row">
+                        <div class="col-4 col-sm-4 col-md-2 col-lg-2">
+                            <img class="headphoto" src="/static/uploads/{{ com.cauthor.gphoto.name }}"
+                                 alt="{{ com.cauthor.gname }}">
+
+                        </div>
+                        <div class="col-8 col-sm-8 col-md-10 col-lg-10">
+                                <div class="row">
+                                    <p class="col-12 col-sm-12 col-md-3 col-lg-3 guest">{{ com.cauthor.gname }}</p>
+                                    <p class="col-12 col-sm-12 col-md-3 col-lg-3 com-date" ><i class="fas fa-clock"></i>&nbsp;{{ com.caddtime }}</p>
+                                    <p class="col-12 col-sm-12 col-md-3 col-lg-3 ">
+                                        <button data-toggle="modal" type="button" class="btn btn-light btn-sm replyBtn"
+                                        data-target="#comModal"
+                                        data-com-id="{{ com.id }}" data-com-to="{{ com.cauthor.gname }}"
+                                        data-com-toid="{{ com.cauthor.id }}">回复
+                                        </button>
+                                    </p>
+                                </div>
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 alert alert-secondary">
+                                {{ com.ccontent|safe }}
+                            </div>
+
+                        </div>
+                    </div>
+                    {% if com.comment_replies.all %}
+                        <div class="card col-12">
+                            <div class="card-body">
+                                {% for subCom in com.comment_replies.all %}
+                                    <div class="row">
+                                        <div class="col-4 col-sm-4 col-md-2 col-lg-2">
+                                            <img class="headphoto"
+                                                 src="/static/uploads/{{ subCom.crauthor.gphoto.name }}"
+                                                 alt="{{ subCom.crauthor.gname }}">
+                                        </div>
+                                        <div class="col-8 col-sm-8 col-md-10 col-lg-10">
+                                            <div class="row">
+                                                <p class="col-12 col-sm-12 col-md-3 col-lg-3 guest">{{ subCom.crauthor.gname }}&nbsp;@&nbsp;{{ subCom.crto.gname }}</p>
+                                                <p class="col-12 col-sm-12 col-md-3 col-lg-3 com-date"><i class="fas fa-clock"></i>&nbsp;&nbsp;{{ subCom.craddtime }}</p>
+                                                <p class="col-12 col-sm-12 col-md-3 col-lg-3">
+                                                    <button data-toggle="modal" type="button"
+                                                    class="btn btn-light btn-sm replyBtn"
+                                                    data-target="#comModal"
+                                                    data-com-id="{{ com.id }}"
+                                                    data-com-to="{{ subCom.crauthor.gname }}"
+                                                    data-com-toid="{{ subCom.crauthor.id }}">回复
+                                                    </button>
+                                                </p>
+                                            </div>
+                                            <div class="alert alert-secondary col-12 col-sm-12 col-md-12 col-lg-12"
+                                                 role="alert">{{ subCom.crcontent|safe }}
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {# 弹窗 #}
+    <div class="modal fade" id="comModal" tabindex="-1" role="dialog"
+         aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalCenterTitle">回复<span id="to"></span></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form class="text-center" id="cromForm" method="post" action="{% url 'app:replycomment' %}">
+                        {% csrf_token %}
+                        <input type="hidden" id="crto" name="crto" value="">
+                        <input type="hidden" id="crcomment" name="crcomment" value="">
+                        <div class="form-group">
+                            <textarea name="crcontent" id="crcontent"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="recomBtn" class="btn btn-primary"><i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+        
+    <script src='/static/tiny_mce/tiny_mce.js'></script>
+        
+    <script>
+        tinyMCE.init({
+            'mode': 'textareas',
+            'theme': 'simple',
+            'width': '100%',
+            'height': 200,
+            'language': 'zh',
+            'style_formats': [
+                {'title': 'Bold text', 'inline': 'b'},
+                {'title': 'Red text', 'inline': 'span', 'styles': {'color': '#ff0000'}},
+                {'title': 'Red header', 'block': 'h1', 'styles': {'color': '#ff0000'}},
+                {'title': 'Example 1', 'inline': 'span', 'classes': 'example1'},
+                {'title': 'Example 2', 'inline': 'span', 'classes': 'example2'},
+                {'title': 'Table styles'},
+                {'title': 'Table row 1', 'selector': 'tr', 'classes': 'tablerow1'}
+            ],
+        });
+        $(function ($) {
+            thisHref = window.location.href;
+            ajaxFormWithEditor($('#comForm'), thisHref, 'ccontent');
+            ajaxFormWithEditor($('#cromForm'), thisHref, 'crcontent');
+            $('#vcodeimg').click(function () {
+                $(this).attr('src', $(this).attr('src') + Math.random());
+            });
+
+            $('.replyBtn').click(function () {
+                var towhoname = $(this).attr('data-com-to');
+                var comId = $(this).attr('data-com-id');
+                var crto = $(this).attr('data-com-toid');
+
+                $('#cromForm').find('input[name=crto]').val(crto);
+                $('#cromForm').find('input[name=crcomment]').val(comId);
+                $('#comModal').find('#to').html(towhoname);
+            });
+
+            $('#recomBtn').click(function () {
+                $('#cromForm').submit();
+            });
+        })
+    </script>
+{% endblock %}

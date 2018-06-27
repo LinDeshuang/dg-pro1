@@ -1,0 +1,70 @@
+{% extends 'app/base.html' %}
+
+
+{% block  topnav-extend %}
+    <li class="breadcrumb-item active" aria-current="page">搜索结果</li>
+{% endblock %}
+
+{% block main %}
+    {% if not comment %}
+        <p class="alert alert-info"><i class="fas fa-frown"></i>&nbsp;&nbsp;不好意思，还没有你想要的相关帖子</p>
+    {% endif %}
+    {% for pub in pagePub.object_list %}
+        <div class="card bg-light mb-11 pubcard">
+            <div class="card-header">
+                <img class="headphoto" src="/static/uploads/{{ pub.pguest.gphoto }}" alt="">
+                {{ pub.pguest.gname }}
+            </div>
+            <div class="card-body">
+                <h5 class="card-title"><a href="{% url 'app:detail' pub.id %}">**{{ pub.ptitle }}**</a></h5>
+                <p class="card-text text-right">
+                    <span class="badge badge-warning">{{ pub.ptype.nname }}</span>
+                    <span class="text-muted"><i class="fas fa-clock"></i>&nbsp;{{ pub.paddtime }}</span>
+                    <span class="text-muted"><i class="fas fa-eye"></i>&nbsp;{{ pub.pclick }}</span>
+                </p>
+            </div>
+        </div>
+    {% endfor %}
+    {% if pagecount > 1 %}
+        <nav aria-label="Page navigation example">
+            <ul class="pagination">
+                {% if pagePub.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link"
+                           href="{% url 'app:search' pagePub.previous_page_number %}?psearch={{ psearch }}">
+                            &laquo;
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#">
+                            &laquo;
+                        </a>
+                    </li>
+                {% endif %}
+
+                {% for foo in pagerange %}
+                    <li class="page-item {% ifequal foo currentpage %}active{% endifequal %}">
+                        <a class="page-link" href="{% url 'app:search' foo %}?psearch={{ psearch }}">{{ foo }}</a>
+                    </li>
+                {% endfor %}
+
+                {% if pagePub.has_next %}
+                    <li class="page-item">
+                        <a class="page-link"
+                           href="{% url 'app:search' pagePub.next_page_number %}?psearch={{ psearch }}">
+                            &raquo;
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#">
+                            &raquo;
+                        </a>
+                    </li>
+                {% endif %}
+
+            </ul>
+        </nav>
+    {% endif %}
+{% endblock %}

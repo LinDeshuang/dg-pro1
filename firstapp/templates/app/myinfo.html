@@ -1,0 +1,138 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+{% block  topnav-extend %}
+<li class="breadcrumb-item active" aria-current="page">个人信息</li>
+{% endblock %}
+
+{% block main %}
+<div class="accordion" id="accordionExample">
+  <div class="card">
+    <div class="card-header" id="headingOne" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+      <h5 class="mb-0">
+        <button class="btn" type="button" >
+          我的信息
+        </button>
+      </h5>
+    </div>
+
+    <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
+      <div class="card-body col-12">
+        <div class="card">
+          <div class="card-header">
+            {{ guest.gname }}
+          </div>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item"><span class="badge badge-pill badge-primary">账号</span>&nbsp;&nbsp;<span>{{ guest.gaccount }}</span></li>
+              <li class="list-group-item"><span class="badge badge-pill badge-success">性别</span>&nbsp;&nbsp;<span>{% if guest.ggender %}男{% else %}女{% endif %}</span></li>
+            <li class="list-group-item"><span class="badge badge-pill badge-info">邮箱</span>&nbsp;&nbsp;<span>{{ guest.gemail }}</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" id="headingTwo" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+      <h5 class="mb-0">
+        <button class="btn collapsed" type="button" >
+          密码修改
+        </button>
+      </h5>
+    </div>
+    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
+      <div class="card-body col-10">
+          <form id="modifyPwdForm" action="{% url 'app:modifypwd' %}">
+              {% csrf_token %}
+              <div class="form-group">
+                <label for="oldpwd">原密码</label>
+                <input type="password" name="oldpwd" required class="form-control" id="oldpwd" placeholder="输入原密码">
+              </div>
+              <div class="form-group">
+                <label for="npwd">新密码:</label>
+                <input type="password" name="npwd" required class="form-control" id="npwd" placeholder="输入新密码">
+              </div>
+              <div class="form-group">
+                <label for="cpwd">确认新密码:</label>
+                <input type="password" name="cpwd" required class="form-control" id="cpwd" placeholder="确认新密码">
+              </div>
+              <button type="submit" class="btn btn-primary">提交</button>
+          </form>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" id="headingThree" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+      <h5 class="mb-0">
+        <button class="btn collapsed" type="button" >
+          头像设置
+        </button>
+      </h5>
+    </div>
+    <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample">
+      <div class="card-body col-10">
+         <img src="{% static gphoto %}" alt="{{ guest.gname }}" class="img-thumbnail" id="currentphoto">
+        <form id="uploadForm" action="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="photo">选择图片</label>
+                <input type="file" name="photo" class="form-control" id="photo">
+            </div>
+            <button type="submit" class="btn btn-primary">提交</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript">
+    $(function($){
+
+        ajaxForm($('#modifyPwdForm'),'#');
+        {# 修改图片 #}
+        $('#photo').change(function(){
+           f = $(this)[0].files[0];
+           $('#currentphoto').attr('src',window.URL.createObjectURL(f));
+        });
+        {# 上传图片 #}
+        $('#uploadForm').submit(function(){
+             file = $('#photo')[0].files[0];
+             if(file.type != 'image/jpg' && file.type != 'image/gif' && file.type != 'image/png' && file.type != 'image/jpeg'){
+                alert('您想上传的图片格式不对，请上传后缀为jpg、gif、png、jpeg的图片！');
+                return false;
+             }
+             if (file.size > 1024 * 1024){
+
+                fileSize = (Math.round(file.size * 100 / (1024 * 1024)) / 100).toString() + 'MB';
+                alert('您想上传的图片大小是'+fileSize+'，太大了！');
+                return false;
+            }
+            var data = new FormData($('#uploadForm')[0]);
+            $.ajax({
+                url: '/app/setphoto',
+                data: data,
+                method: 'post',
+                cache: false,
+                contentType: false,
+                processData: false,
+                dataType:'json',
+                success: function(retData){
+                    if(retData.errcode == 0){
+                        alert(retData.msg);
+                        setTimeout(function(){
+                            window.location.reload();
+                        },1000);
+                    }else{
+                        alert(retData.msg)
+                    }
+                },
+                fail: function(){
+                    alert('server error');
+                }
+            });
+            return false;
+        })
+    })
+</script>
+{% endblock %}

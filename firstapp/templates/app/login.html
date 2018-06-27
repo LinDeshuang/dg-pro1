@@ -1,0 +1,47 @@
+{% extends 'app/base.html' %}
+
+{% block  topnav-extend %}
+    <li class="breadcrumb-item active" aria-current="page">登录</li>
+{% endblock %}
+
+{% block main %}
+    <div class="container col-12 col-sm-12 col-md-10 col-lg-10">
+        <div class="card" style="margin: 10px auto;">
+            <div class="card-header">登录</div>
+            <div class="card-body">
+                <form id="loginForm" method="post" action="{% url 'app:login' %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="account">账号:</label>
+                        <input type="text" name="account" class="form-control " id="account" placeholder="input account">
+                    </div>
+                    <div class="form-group">
+                        <label for="pwd">密码:</label>
+                        <input type="password" name="pwd" class="form-control" id="pwd" placeholder="input password">
+                    </div>
+                    <div class="form-group">
+                        <img src="/app/getvcode" alt="点击刷新" id="vcodeimg"
+                             style="display:block;margin: 5px auto;width:40%;border: solid 1px #efefef">
+                        <label for="vcode">验证码：</label>
+                        <input type="text" name="vcode" class="form-control" id="vcode" placeholder="输入验证码" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">登录</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block js %}
+    <script>
+        $(function ($) {
+            ajaxForm($('#loginForm'), "{% url 'app:index' %}");
+
+            $('#vcodeimg').click(function () {
+                $(this).attr('src', $(this).attr('src') + Math.random());
+            });
+        })
+
+    </script>
+{% endblock %}
